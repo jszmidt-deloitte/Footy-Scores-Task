@@ -15,8 +15,8 @@ from .constants import (
 )
 
 
-def fetch_json(session: requests.Session, url: str) -> Any:
-    response = session.get(url, headers=HEADERS, timeout=30)
+def fetch_json(session: requests.Session, url: str, timeout: float) -> Any:
+    response = session.get(url, headers=HEADERS, timeout=timeout)
     response.raise_for_status()
     return response.json()
 
@@ -25,23 +25,25 @@ def data_url(filename: str) -> str:
     return f"{DATA_URL}/{filename}"
 
 
-def retrieve_start_list(session: requests.Session) -> Any:
-    return fetch_json(session, data_url(START_LIST_FILE))
+def retrieve_start_list(session: requests.Session, timeout: float) -> Any:
+    return fetch_json(session, data_url(START_LIST_FILE), timeout)
 
 
 def retrieve_details(
     session: requests.Session,
     seeds: list[dict[str, Any]],
+    timeout: float,
+    max_workers: int,
 ) -> tuple[Any, list[Any], list[Any], dict[str, Any], list[str]]:
     failed: list[str] = []
     try:
-        event_units = fetch_json(session, data_url(EVENT_UNITS_FILE))
+        event_units = fetch_json(session, data_url(EVENT_UNITS_FILE), timeout)
     except requests.RequestException as error:
         event_units = {}
         failed.append(f"{EVENT_UNITS_FILE}: {error}")
 
     try:
-        fetch_json(session, LABELS_URL)
+        fetch_json(session, LABELS_URL, timeout)
     except requests.RequestException as error:
         failed.append(f"labels.json: {error}")
 
@@ -62,9 +64,9 @@ def retrieve_details(
     games: list[Any] = []
     phases: list[Any] = []
     results: dict[str, Any] = {}
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(fetch_json, session, data_url(filename)): (filename, kind, key)
+            executor.submit(fetch_json, session, data_url(filename), timeout): (filename, kind, key)
             for filename, kind, key in requests_to_make
         }
         for future in as_completed(futures):
