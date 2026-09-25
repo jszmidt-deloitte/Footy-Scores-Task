@@ -82,6 +82,27 @@ Create the FastAPI application
 Start the Uvicorn web server
 ```
 
+By default, `main.py` always refreshes the Olympic data before starting the
+server.
+
+### Start the server from existing output
+
+To start the API without making any Olympic requests, use:
+
+```powershell
+python main.py --server-only --output-dir output --host 127.0.0.1 --port 8000
+```
+
+This mode loads `output/generation.json` and serves the matches already
+generated there. Run the normal command at least once first:
+
+```powershell
+python main.py
+```
+
+If the requested output directory does not contain `generation.json`, server
+startup stops with an instruction to run the normal fetch-and-serve command.
+
 Once started, the server is available at:
 
 ```text
@@ -234,4 +255,3 @@ task-code/
 - **Uvicorn** - ASGI server hosting the FastAPI application
 - **ThreadPoolExecutor** - concurrent retrieval of match detail endpoints
 - **JSON** - generated machine-readable output format
-
