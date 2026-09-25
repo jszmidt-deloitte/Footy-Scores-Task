@@ -55,14 +55,7 @@ python -m pip install -r requirements.txt
 Run from the `task-code` directory:
 
 ```powershell
-python -m retrieve_data.olympics_fetcher --output-dir output
-```
-
-The following two commands are equivalent:
-
-```powershell
 python main.py --output-dir output
-python -m retrieve_data.olympics_fetcher --output-dir output
 ```
 
 ### Command-line options
